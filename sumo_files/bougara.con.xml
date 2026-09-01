@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Connection (turning movement) definitions.
+
+    J_main_sec (y=0): Main x Secondary junction
+      Incoming: main_NB_pc_jm (Northbound from south), main_SB_pb_jm (Southbound from north), sec_in_2 (secondary inbound)
+      Outgoing: main_NB_jm_pb (continue North), main_SB_jm_pc (continue South), sec_out_1 (exit to secondary East)
+
+    J_third (y=-120): Third road junction (further south)
+      Incoming: main_NB_s_jt (Northbound from south), main_SB_pc_jt (Southbound from north)
+      Outgoing: main_NB_jt_pc (continue North), main_SB_jt_s (continue South), third_out (exit West, Northbound only)
+-->
+<connections>
+    <!-- ============================================================ -->
+    <!-- J_main_sec connections                                       -->
+    <!-- ============================================================ -->
+
+    <!-- Northbound continues straight through J_main_sec -->
+    <connection from="main_NB_pc_jm" to="main_NB_jm_pb" fromLane="0" toLane="0"/>
+    <connection from="main_NB_pc_jm" to="main_NB_jm_pb" fromLane="1" toLane="1"/>
+
+    <!-- Northbound exits to secondary outbound (right turn West->East) -->
+    <connection from="main_NB_pc_jm" to="sec_out_1" fromLane="0" toLane="0"/>
+
+    <!-- Southbound continues straight through J_main_sec -->
+    <connection from="main_SB_pb_jm" to="main_SB_jm_pc" fromLane="0" toLane="0"/>
+    <connection from="main_SB_pb_jm" to="main_SB_jm_pc" fromLane="1" toLane="1"/>
+
+    <!-- Southbound exits to secondary outbound (left turn West->East) -->
+    <connection from="main_SB_pb_jm" to="sec_out_1" fromLane="0" toLane="0"/>
+
+    <!-- Secondary inbound joins Northbound main road -->
+    <connection from="sec_in_2" to="main_NB_jm_pb" fromLane="0" toLane="0"/>
+
+    <!-- Secondary inbound joins Southbound main road -->
+    <connection from="sec_in_2" to="main_SB_jm_pc" fromLane="0" toLane="0"/>
+
+    <!-- ============================================================ -->
+    <!-- J_third connections                                          -->
+    <!-- ============================================================ -->
+
+    <!-- Northbound continues straight through J_third -->
+    <connection from="main_NB_s_jt" to="main_NB_jt_pc" fromLane="0" toLane="0"/>
+    <connection from="main_NB_s_jt" to="main_NB_jt_pc" fromLane="1" toLane="1"/>
+
+    <!-- Northbound exits to third road (left/West turn) -->
+    <connection from="main_NB_s_jt" to="third_out" fromLane="0" toLane="0"/>
+
+    <!-- Southbound continues straight through J_third (no exit to third road) -->
+    <connection from="main_SB_pc_jt" to="main_SB_jt_s" fromLane="0" toLane="0"/>
+    <connection from="main_SB_pc_jt" to="main_SB_jt_s" fromLane="1" toLane="1"/>
+
+    <!-- ============================================================ -->
+    <!-- Pedestrian crossing passthroughs (priority nodes)           -->
+    <!-- ============================================================ -->
+    <!-- ped_cross_b -->
+    <connection from="main_NB_jm_pb" to="main_NB_pb_n"  fromLane="0" toLane="0"/>
+    <connection from="main_NB_jm_pb" to="main_NB_pb_n"  fromLane="1" toLane="1"/>
+    <connection from="main_SB_n_pb"  to="main_SB_pb_jm" fromLane="0" toLane="0"/>
+    <connection from="main_SB_n_pb"  to="main_SB_pb_jm" fromLane="1" toLane="1"/>
+
+    <!-- ped_cross_c -->
+    <connection from="main_NB_jt_pc" to="main_NB_pc_jm" fromLane="0" toLane="0"/>
+    <connection from="main_NB_jt_pc" to="main_NB_pc_jm" fromLane="1" toLane="1"/>
+    <connection from="main_SB_jm_pc" to="main_SB_pc_jt" fromLane="0" toLane="0"/>
+    <connection from="main_SB_jm_pc" to="main_SB_pc_jt" fromLane="1" toLane="1"/>
+
+    <!-- ped_cross_a (secondary road) -->
+    <connection from="sec_in_1"  to="sec_in_2"   fromLane="0" toLane="0"/>
+    <connection from="sec_out_1" to="sec_out_2"  fromLane="0" toLane="0"/>
+</connections>

@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Edge definitions for Bougara El Biar intersection.
+
+    COORDINATE SYSTEM: Y increases northward.
+      north_end  y=200
+      ped_cross_b y=50
+      J_main_sec  y=0
+      ped_cross_c y=-70
+      J_third     y=-120
+      south_end   y=-300
+
+    Main road speed: 50 km/h = 13.89 m/s
+    Secondary/Third road speed: 30 km/h = 8.33 m/s
+-->
+<edges>
+    <!-- ===== MAIN ROAD – NORTHBOUND (South to North) ===== -->
+    <!-- Segment: south_end -> J_third -->
+    <edge id="main_NB_s_jt"   from="south_end"    to="J_third"      numLanes="2" speed="13.89" priority="10"/>
+    <!-- Segment: J_third -> ped_cross_c -->
+    <edge id="main_NB_jt_pc"  from="J_third"      to="ped_cross_c"  numLanes="2" speed="13.89" priority="10"/>
+    <!-- Segment: ped_cross_c -> J_main_sec -->
+    <edge id="main_NB_pc_jm"  from="ped_cross_c"  to="J_main_sec"   numLanes="2" speed="13.89" priority="10"/>
+    <!-- Segment: J_main_sec -> ped_cross_b -->
+    <edge id="main_NB_jm_pb"  from="J_main_sec"   to="ped_cross_b"  numLanes="2" speed="13.89" priority="10"/>
+    <!-- Segment: ped_cross_b -> north_end -->
+    <edge id="main_NB_pb_n"   from="ped_cross_b"  to="north_end"    numLanes="2" speed="13.89" priority="10"/>
+
+    <!-- ===== MAIN ROAD – SOUTHBOUND (North to South) ===== -->
+    <!-- Segment: north_end -> ped_cross_b -->
+    <edge id="main_SB_n_pb"   from="north_end"    to="ped_cross_b"  numLanes="2" speed="13.89" priority="10"/>
+    <!-- Segment: ped_cross_b -> J_main_sec -->
+    <edge id="main_SB_pb_jm"  from="ped_cross_b"  to="J_main_sec"   numLanes="2" speed="13.89" priority="10"/>
+    <!-- Segment: J_main_sec -> ped_cross_c -->
+    <edge id="main_SB_jm_pc"  from="J_main_sec"   to="ped_cross_c"  numLanes="2" speed="13.89" priority="10"/>
+    <!-- Segment: ped_cross_c -> J_third -->
+    <edge id="main_SB_pc_jt"  from="ped_cross_c"  to="J_third"      numLanes="2" speed="13.89" priority="10"/>
+    <!-- Segment: J_third -> south_end -->
+    <edge id="main_SB_jt_s"   from="J_third"      to="south_end"    numLanes="2" speed="13.89" priority="10"/>
+
+    <!-- ===== SECONDARY ROAD – INBOUND (East->West, joining main road at J_main_sec) ===== -->
+    <edge id="sec_in_1"  from="secondary_end" to="ped_cross_a"  numLanes="1" speed="8.33" priority="5"/>
+    <edge id="sec_in_2"  from="ped_cross_a"   to="J_main_sec"   numLanes="1" speed="8.33" priority="5"/>
+
+    <!-- ===== SECONDARY ROAD – OUTBOUND (West->East, from J_main_sec to East) ===== -->
+    <edge id="sec_out_1" from="J_main_sec"    to="ped_cross_a"  numLanes="1" speed="8.33" priority="5"/>
+    <edge id="sec_out_2" from="ped_cross_a"   to="secondary_end" numLanes="1" speed="8.33" priority="5"/>
+
+    <!-- ===== THIRD ROAD – OUTBOUND (exit for Northbound only, going West) ===== -->
+    <!-- Northbound vehicles exit J_third going West -->
+    <edge id="third_out" from="J_third"       to="third_end"    numLanes="1" speed="8.33" priority="5"/>
+</edges>

@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<nodes>
+    <!-- Main road endpoints -->
+    <node id="north_end"      x="0"    y="200"  type="dead_end"/>
+    <node id="south_end"      x="0"    y="-300" type="dead_end"/>
+
+    <!-- Main controlled junction (main road x secondary road) -->
+    <node id="J_main_sec"     x="0"    y="0"    type="traffic_light"
+          tl="J_main_sec"/>
+
+    <!-- Third road junction (further south, exit only Northbound) -->
+    <node id="J_third"        x="0"    y="-120" type="traffic_light"
+          tl="J_third"/>
+
+    <!-- Pedestrian crossing B: middle of main road, just north of J_main_sec -->
+    <node id="ped_cross_b"    x="0"    y="50"   type="priority"/>
+
+    <!-- Pedestrian crossing A: at start of secondary road arm -->
+    <node id="ped_cross_a"    x="60"   y="0"    type="priority"/>
+
+    <!-- Pedestrian crossing C: just north of J_third -->
+    <node id="ped_cross_c"    x="0"    y="-70"  type="priority"/>
+
+    <!-- Secondary road far end (East) -->
+    <node id="secondary_end"  x="200"  y="0"    type="dead_end"/>
+
+    <!-- Third road far end (West) -->
+    <node id="third_end"      x="-150" y="-120" type="dead_end"/>
+</nodes>
