@@ -1,12 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<!--
-    Route definitions for Bougara El Biar intersection.
-    Realistic Algerian urban traffic patterns:
-    - Peak hours: ~800 veh/h on main road
-    - Off-peak: ~300 veh/h on main road
-    - Secondary: ~200 veh/h
-    We simulate one episode = 3600 seconds (1 hour)
--->
+<?xml version="1.0" encoding="UTF-8"?>
 <routes>
     <!-- Vehicle types -->
     <vType id="car"    accel="2.6" decel="4.5" sigma="0.5" length="4.5"  minGap="2.5" maxSpeed="50" guiShape="passenger"/>
@@ -15,50 +7,36 @@
     <vType id="pedestrian" vClass="pedestrian" length="0.25" minGap="0.25" maxSpeed="1.5" guiShape="pedestrian"/>
 
     <!-- ===== VEHICLE ROUTES ===== -->
-
-    <!-- Main road Northbound: south -> north (straight through both junctions) -->
     <route id="rNB_straight" edges="main_NB_s_jt main_NB_jt_pc main_NB_pc_jm main_NB_jm_pb main_NB_pb_n"/>
-
-    <!-- Main road Northbound: south -> exit West at third road -->
     <route id="rNB_to_third" edges="main_NB_s_jt third_out"/>
-
-    <!-- Main road Northbound: south -> exit East at secondary road -->
     <route id="rNB_to_sec"   edges="main_NB_s_jt main_NB_jt_pc main_NB_pc_jm sec_out_1 sec_out_2"/>
-
-    <!-- Main road Southbound: north -> south (straight through) -->
     <route id="rSB_straight" edges="main_SB_n_pb main_SB_pb_jm main_SB_jm_pc main_SB_pc_jt main_SB_jt_s"/>
-
-    <!-- Main road Southbound: north -> exit East at secondary road -->
     <route id="rSB_to_sec"   edges="main_SB_n_pb main_SB_pb_jm sec_out_1 sec_out_2"/>
-
-    <!-- Secondary inbound -> join Northbound -->
     <route id="rSec_to_NB"   edges="sec_in_1 sec_in_2 main_NB_jm_pb main_NB_pb_n"/>
-
-    <!-- Secondary inbound -> join Southbound -->
     <route id="rSec_to_SB"   edges="sec_in_1 sec_in_2 main_SB_jm_pc main_SB_pc_jt main_SB_jt_s"/>
 
     <!-- ===== PEDESTRIAN ROUTES ===== -->
-    <!-- Crossing A (at secondary road start) -->
     <route id="rPed_A_fwd" edges="sec_out_1"/>
     <route id="rPed_A_bwd" edges="sec_in_2"/>
 
-    <!-- ===== VEHICLE FLOWS ===== -->
-
-    <!-- Main Northbound - heavy flow -->
-    <flow id="fNB_straight" type="car"  route="rNB_straight" begin="0" end="3600" vehsPerHour="480" departSpeed="max" departLane="best"/>
-    <flow id="fNB_moto"     type="moto" route="rNB_straight" begin="0" end="3600" vehsPerHour="120" departSpeed="max" departLane="best"/>
+    <!-- ===== VEHICLE FLOWS (Scenario: uniform) ===== -->
+    <!-- Main Northbound -->
+    <flow id="fNB_straight" type="car"  route="rNB_straight" begin="0" end="3600" vehsPerHour="479" departSpeed="max" departLane="best"/>
+    <flow id="fNB_moto"     type="moto" route="rNB_straight" begin="0" end="3600" vehsPerHour="136" departSpeed="max" departLane="best"/>
     <flow id="fNB_truck"    type="truck" route="rNB_straight" begin="0" end="3600" vehsPerHour="40" departSpeed="max" departLane="best"/>
-    <flow id="fNB_to_third" type="car"  route="rNB_to_third" begin="0" end="3600" vehsPerHour="60"  departSpeed="max" departLane="best"/>
-    <flow id="fNB_to_sec"   type="car"  route="rNB_to_sec"   begin="0" end="3600" vehsPerHour="80"  departSpeed="max" departLane="best"/>
+    <flow id="fNB_to_third" type="car"  route="rNB_to_third" begin="0" end="3600" vehsPerHour="52"  departSpeed="max" departLane="best"/>
+    <flow id="fNB_to_sec"   type="car"  route="rNB_to_sec"   begin="0" end="3600" vehsPerHour="76"  departSpeed="max" departLane="best"/>
 
-    <!-- Main Southbound - heavy flow -->
-    <flow id="fSB_straight" type="car"  route="rSB_straight" begin="0" end="3600" vehsPerHour="460" departSpeed="max" departLane="best"/>
+    <!-- Main Southbound -->
+    <flow id="fSB_straight" type="car"  route="rSB_straight" begin="0" end="3600" vehsPerHour="465" departSpeed="max" departLane="best"/>
     <flow id="fSB_moto"     type="moto" route="rSB_straight" begin="0" end="3600" vehsPerHour="100" departSpeed="max" departLane="best"/>
     <flow id="fSB_truck"    type="truck" route="rSB_straight" begin="0" end="3600" vehsPerHour="30" departSpeed="max" departLane="best"/>
-    <flow id="fSB_to_sec"   type="car"  route="rSB_to_sec"   begin="0" end="3600" vehsPerHour="70"  departSpeed="max" departLane="best"/>
+    <flow id="fSB_to_sec"   type="car"  route="rSB_to_sec"   begin="0" end="3600" vehsPerHour="77"  departSpeed="max" departLane="best"/>
 
     <!-- Secondary road inbound -->
-    <flow id="fSec_NB"      type="car"  route="rSec_to_NB"   begin="0" end="3600" vehsPerHour="100" departSpeed="max" departLane="best"/>
-    <flow id="fSec_SB"      type="car"  route="rSec_to_SB"   begin="0" end="3600" vehsPerHour="100" departSpeed="max" departLane="best"/>
-    <flow id="fSec_moto"    type="moto" route="rSec_to_NB"   begin="0" end="3600" vehsPerHour="40"  departSpeed="max" departLane="best"/>
+    <flow id="fSec_NB"      type="car"  route="rSec_to_NB"   begin="0" end="3600" vehsPerHour="95" departSpeed="max" departLane="best"/>
+    <flow id="fSec_SB"      type="car"  route="rSec_to_SB"   begin="0" end="3600" vehsPerHour="111" departSpeed="max" departLane="best"/>
+    <flow id="fSec_moto"    type="moto" route="rSec_to_NB"   begin="0" end="3600" vehsPerHour="41"  departSpeed="max" departLane="best"/>
+
+    
 </routes>

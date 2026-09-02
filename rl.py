@@ -35,13 +35,16 @@ from gymnasium import spaces
 import traci
 # pyrefly: ignore [missing-import]
 from stable_baselines3 import PPO
+from sb3_contrib import RecurrentPPO
 # pyrefly: ignore [missing-import]
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback
 from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("Agg")
+import traffic_generator
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -57,7 +60,7 @@ SUMO_BINARY = "sumo"  # Change to "sumo-gui" to watch the simulation
 #          then set KAGGLE_DATASET_NAME = "bougara-sumo"
 # Leave as None to use the local sumo_files/ folder.
 # ---------------------------------------------------------------------------
-KAGGLE_DATASET_NAME = "rldatasett"   # ← CHANGE THIS on Kaggle, e.g. "bougara-sumo"
+KAGGLE_DATASET_NAME = os.environ.get("KAGGLE_DATASET_NAME", "rldatasett")   # ← CHANGE THIS on Kaggle, e.g. "bougara-sumo"
 
 ON_KAGGLE = os.path.exists("/kaggle/input")
 
@@ -188,6 +191,9 @@ class BougaraIntersectionEnv(gym.Env):
         except Exception:
             pass
 
+        # Generate new random traffic scenario before starting
+        traffic_generator.generate_traffic(SUMO_DIR, scenario="random")
+
         sumo_cmd = [
             self.sumo_binary,
             "-c", SUMO_CFG,
@@ -250,12 +256,10 @@ class BougaraIntersectionEnv(gym.Env):
             total_halting += q
             max_lane_wait = max(max_lane_wait, w)
 
-        # Main penalty: total halting vehicles
-        reward = -float(total_halting)
+        # Exponential penalty for starvation (e.g. w=10 -> 1, w=60 -> 36, w=120 -> 144)
+        wait_penalty = (max_lane_wait / 10.0) ** 2
 
-        # Fairness bonus: if no lane is starved (waiting >120s), small bonus
-        if max_lane_wait < 120.0:
-            reward += 2.0
+        reward = -float(total_halting) - wait_penalty
 
         return reward
 
@@ -266,32 +270,34 @@ class BougaraIntersectionEnv(gym.Env):
         Handles yellow phase transition before switching green phase.
         J_third is coordinated: mirrors the main junction phase.
         """
-        # Map action to target phase
         target_phase = MAIN_GREEN_PHASE if action == 0 else SEC_GREEN_PHASE
+        is_valid = True
 
         if self._in_yellow:
-            # Currently in yellow – count down
             self._yellow_elapsed += 1
             if self._yellow_elapsed >= YELLOW_DURATION:
-                # Switch to pending green phase
                 traci.trafficlight.setPhase("J_main_sec", self._pending_phase)
                 self._current_phase_jm = self._pending_phase
                 self._in_yellow = False
                 self._yellow_elapsed = 0
                 self._phase_elapsed = 0
-                # Coordinate J_third
                 self._set_jthird_phase(self._pending_phase)
+            else:
+                if target_phase != self._pending_phase:
+                    is_valid = False
         else:
-            # Currently in a green phase
             self._phase_elapsed += 1
-            if target_phase != self._current_phase_jm and self._phase_elapsed >= MIN_GREEN_TIME:
-                # Start yellow transition
-                yellow_phase = self._current_phase_jm + 1  # yellow is always phase+1
-                traci.trafficlight.setPhase("J_main_sec", yellow_phase)
-                self._in_yellow = True
-                self._pending_phase = target_phase
-                self._yellow_elapsed = 0
-            # else: keep current phase
+            if target_phase != self._current_phase_jm:
+                if self._phase_elapsed >= MIN_GREEN_TIME:
+                    yellow_phase = self._current_phase_jm + 1
+                    traci.trafficlight.setPhase("J_main_sec", yellow_phase)
+                    self._in_yellow = True
+                    self._pending_phase = target_phase
+                    self._yellow_elapsed = 0
+                else:
+                    is_valid = False
+
+        return is_valid
 
     # ------------------------------------------------------------------
     def _set_jthird_phase(self, jm_phase: int):
@@ -329,7 +335,7 @@ class BougaraIntersectionEnv(gym.Env):
     def step(self, action: int):
         """Execute one simulation step with the given action."""
         # Apply action (handles yellow/green transitions)
-        self._apply_action(action)
+        is_valid = self._apply_action(action)
 
         # Advance simulation by one second
         traci.simulationStep()
@@ -338,6 +344,11 @@ class BougaraIntersectionEnv(gym.Env):
         # Get new state
         obs    = self._get_observation()
         reward = self._compute_reward()
+        
+        # Penalize invalid action choice (agent trying to switch too fast)
+        if not is_valid:
+            reward -= 10.0
+
         self._episode_reward += reward
 
         # Episode ends when simulation time is up
@@ -402,22 +413,24 @@ def train(
     print("=" * 60)
 
     # --- Training environment ---
-    train_env = BougaraIntersectionEnv(use_gui=False)
-    train_env = Monitor(train_env, filename=os.path.join(log_dir, "train_monitor"))
+    env = BougaraIntersectionEnv(use_gui=False)
+    env = Monitor(env, filename=os.path.join(log_dir, "train_monitor"))
+    vec_env = DummyVecEnv([lambda: env])
+    train_env = VecNormalize(vec_env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
 
     # --- PPO model ---
-    model = PPO(
-        policy           = "MlpPolicy",
+    model = RecurrentPPO(
+        policy           = "MlpLstmPolicy",
         env              = train_env,
         learning_rate    = 3e-4,
-        n_steps          = 2048,       # steps per update rollout
+        n_steps          = 2048,
         batch_size       = 64,
         n_epochs         = 10,
-        gamma            = 0.99,       # discount factor
+        gamma            = 0.99,
         gae_lambda       = 0.95,
         clip_range       = 0.2,
-        ent_coef         = 0.01,       # entropy bonus for exploration
+        ent_coef         = 0.01,
         vf_coef          = 0.5,
         max_grad_norm    = 0.5,
         tensorboard_log  = log_dir,
@@ -426,18 +439,21 @@ def train(
     )
 
     # --- Callbacks ---
-    # Checkpoint every 50k steps
     checkpoint_cb = CheckpointCallback(
         save_freq   = 50_000,
         save_path   = save_dir,
-        name_prefix = "bougara_ppo",
+        name_prefix = "bougara_lstm",
         verbose     = 1,
     )
 
-    # Evaluation callback (separate eval env)
-    eval_env = Monitor(BougaraIntersectionEnv(use_gui=False))
+    eval_env = BougaraIntersectionEnv(use_gui=False)
+    eval_env = Monitor(eval_env)
+    eval_vec_env = DummyVecEnv([lambda: eval_env])
+    eval_vec_env = VecNormalize(eval_vec_env, norm_obs=True, norm_reward=False, clip_obs=10., training=False)
+    eval_vec_env.obs_rms = train_env.obs_rms
+
     eval_cb  = EvalCallback(
-        eval_env,
+        eval_vec_env,
         best_model_save_path = os.path.join(save_dir, "best"),
         log_path             = log_dir,
         eval_freq            = 50_000,
@@ -462,8 +478,9 @@ def train(
     print(f"\n[INFO] Training complete in {elapsed/60:.1f} minutes.")
 
     # --- Save final model ---
-    final_path = os.path.join(save_dir, "bougara_ppo_final")
+    final_path = os.path.join(save_dir, "bougara_lstm_final")
     model.save(final_path)
+    train_env.save(os.path.join(save_dir, "vec_normalize.pkl"))
     print(f"[INFO] Final model saved to: {final_path}.zip")
 
     # --- Plot reward curve ---
@@ -478,34 +495,41 @@ def train(
 
 def evaluate(model_path: str, n_episodes: int = 5, use_gui: bool = False):
     """
-    Evaluate a trained PPO model on the Bougara intersection.
-
-    Args:
-        model_path : Path to a saved PPO model (without .zip extension).
-        n_episodes : Number of evaluation episodes.
-        use_gui    : If True, opens SUMO-GUI to watch the agent.
+    Evaluate a trained RecurrentPPO model.
     """
     print(f"\n[INFO] Loading model from: {model_path}")
-    model = PPO.load(model_path)
+    model = RecurrentPPO.load(model_path)
 
     env = BougaraIntersectionEnv(use_gui=use_gui)
+    vec_env = DummyVecEnv([lambda: env])
+    
+    save_dir = os.path.dirname(model_path)
+    vec_norm_path = os.path.join(save_dir, "vec_normalize.pkl")
+    if os.path.exists(vec_norm_path):
+        vec_env = VecNormalize.load(vec_norm_path, vec_env)
+        vec_env.training = False
+        vec_env.norm_reward = False
+
     episode_rewards = []
 
     for ep in range(n_episodes):
-        obs, _ = env.reset()
-        done   = False
+        obs = vec_env.reset()
+        lstm_states = None
+        episode_starts = np.ones((1,), dtype=bool)
+        done = False
         total_reward = 0.0
 
         while not done:
-            action, _ = model.predict(obs, deterministic=True)
-            obs, reward, terminated, truncated, info = env.step(int(action))
-            total_reward += reward
-            done = terminated or truncated
+            action, lstm_states = model.predict(obs, state=lstm_states, episode_start=episode_starts, deterministic=True)
+            obs, reward, done_vec, info = vec_env.step(action)
+            episode_starts = done_vec
+            done = done_vec[0]
+            total_reward += reward[0]
 
         episode_rewards.append(total_reward)
         print(f"  Episode {ep+1}/{n_episodes} | Total Reward: {total_reward:.1f}")
 
-    env.close()
+    vec_env.close()
 
     mean_r = np.mean(episode_rewards)
     std_r  = np.std(episode_rewards)
@@ -581,4 +605,5 @@ def _plot_reward_curve(log_dir: str):
 # Entry point
 # ---------------------------------------------------------------------------
 
-train(total_timesteps=500_000)
+if __name__ == "__main__":
+    train(total_timesteps=500_000)
