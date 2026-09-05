@@ -59,40 +59,38 @@ SUMO_BINARY = "sumo"  # Change to "sumo-gui" to watch the simulation
 
 # ---------------------------------------------------------------------------
 # PATH CONFIGURATION
-# Set KAGGLE_DATASET_NAME to your Kaggle dataset slug if running on Kaggle.
-# Example: if your dataset URL is kaggle.com/datasets/yourname/bougara-sumo
-#          then set KAGGLE_DATASET_NAME = "bougara-sumo"
-# Leave as None to use the local sumo_files/ folder.
+# Automatically detects Kaggle vs local environment.
 # ---------------------------------------------------------------------------
-KAGGLE_DATASET_NAME = os.environ.get("KAGGLE_DATASET_NAME", "rldatasett")   # ← CHANGE THIS on Kaggle, e.g. "bougara-sumo"
+ON_KAGGLE = os.path.exists("/kaggle")
 
-ON_KAGGLE = os.path.exists("/kaggle/input")
+if ON_KAGGLE:
+    _working_sumo = "/kaggle/working/sumo_files"
+    os.makedirs(_working_sumo, exist_ok=True)
+    
+    # If /kaggle/working/sumo_files is empty, search /kaggle/input for SUMO config
+    if not any(f.endswith(".sumocfg") for f in os.listdir(_working_sumo)):
+        import glob, shutil
+        cfg_candidates = glob.glob("/kaggle/input/**/bougara.sumocfg", recursive=True)
+        if cfg_candidates:
+            source_dir = os.path.dirname(cfg_candidates[0])
+            for _f in os.listdir(source_dir):
+                if _f.endswith((".xml", ".sumocfg")):
+                    shutil.copy(os.path.join(source_dir, _f), _working_sumo)
 
-if ON_KAGGLE and KAGGLE_DATASET_NAME:
-    SUMO_DIR = f"/kaggle/input/datasets/rayantribeche/{KAGGLE_DATASET_NAME}"
+    # Patch bougara.add.xml for Linux SUMO if necessary
+    _add_xml = os.path.join(_working_sumo, "bougara.add.xml")
+    if os.path.exists(_add_xml):
+        with open(_add_xml, "r") as _fh:
+            _content = _fh.read()
+        if 'period="30"' in _content:
+            _content = _content.replace('period="30"', 'freq="30"')
+            with open(_add_xml, "w") as _fh:
+                _fh.write(_content)
+
+    SUMO_DIR = _working_sumo
 else:
     _script_dir = os.path.dirname(os.path.abspath(__file__)) if "__file__" in dir() else os.getcwd()
     SUMO_DIR = os.path.join(_script_dir, "sumo_files")
-
-# ---------------------------------------------------------------------------
-# On Kaggle: copy SUMO files to a writable directory and patch add.xml.
-# The Kaggle SUMO version requires 'freq' instead of 'period' in detectors.
-# ---------------------------------------------------------------------------
-if ON_KAGGLE:
-    import shutil
-    _working_sumo = "/kaggle/working/sumo_files"
-    os.makedirs(_working_sumo, exist_ok=True)
-    for _f in os.listdir(SUMO_DIR):
-        shutil.copy(os.path.join(SUMO_DIR, _f), _working_sumo)
-    # Patch bougara.add.xml: replace 'period' with 'freq'
-    _add_xml = os.path.join(_working_sumo, "bougara.add.xml")
-    with open(_add_xml, "r") as _fh:
-        _content = _fh.read()
-    _content = _content.replace('period="30"', 'freq="30"')
-    with open(_add_xml, "w") as _fh:
-        _fh.write(_content)
-    SUMO_DIR = _working_sumo
-    print(f"[INFO] SUMO files copied and patched → {_working_sumo}")
 
 SUMO_CFG = os.path.join(SUMO_DIR, "bougara.sumocfg")
 
