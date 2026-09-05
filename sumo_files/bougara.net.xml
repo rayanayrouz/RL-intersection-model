@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-08-31T14:29:00.834660+01:00 by Eclipse SUMO netconvert 1.27.1
+<netconvertConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <node-files value="sumo_files\bougara.nod.xml"/>
+        <edge-files value="sumo_files\bougara.edg.xml"/>
+        <connection-files value="sumo_files\bougara.con.xml"/>
+    </input>
+
+    <output>
+        <output-file value="sumo_files\bougara.net.xml"/>
+    </output>
+
+    <tls_building>
+        <tls.default-type value="static"/>
+    </tls_building>
+
+    <junctions>
+        <no-turnarounds value="true"/>
+    </junctions>
+
+</netconvertConfiguration>
+-->
+
+<net version="1.20" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <location netOffset="150.00,300.00" convBoundary="0.00,0.00,350.00,500.00" origBoundary="-150.00,-300.00,200.00,200.00" projParameter="!"/>
+
+    <edge id=":J_main_sec_0" function="internal">
+        <lane id=":J_main_sec_0_0" index="0" speed="13.89" length="14.40" shape="145.20,307.20 145.20,292.80"/>
+    </edge>
+    <edge id=":J_main_sec_1" function="internal">
+        <lane id=":J_main_sec_1_0" index="0" speed="9.32" length="7.76" shape="145.20,307.20 146.15,303.35 148.88,300.72"/>
+    </edge>
+    <edge id=":J_main_sec_2" function="internal">
+        <lane id=":J_main_sec_2_0" index="0" speed="13.89" length="14.40" shape="148.40,307.20 148.40,292.80"/>
+    </edge>
+    <edge id=":J_main_sec_8" function="internal">
+        <lane id=":J_main_sec_8_0" index="0" speed="9.32" length="11.87" shape="148.88,300.72 149.00,300.60 153.75,298.95 160.40,298.40"/>
+    </edge>
+    <edge id=":J_main_sec_3" function="internal">
+        <lane id=":J_main_sec_3_0" index="0" speed="6.51" length="9.03" shape="160.40,301.60 157.95,301.95 156.20,303.00 155.15,304.75 154.80,307.20"/>
+    </edge>
+    <edge id=":J_main_sec_4" function="internal">
+        <lane id=":J_main_sec_4_0" index="0" speed="9.32" length="19.63" shape="160.40,301.60 153.75,301.05 149.00,299.40 146.15,296.65 145.20,292.80"/>
+    </edge>
+    <edge id=":J_main_sec_5" function="internal">
+        <lane id=":J_main_sec_5_0" index="0" speed="6.51" length="9.03" shape="154.80,292.80 155.15,295.25 156.20,297.00 157.95,298.05 160.40,298.40"/>
+    </edge>
+    <edge id=":J_main_sec_6" function="internal">
+        <lane id=":J_main_sec_6_0" index="0" speed="13.89" length="14.40" shape="154.80,292.80 154.80,307.20"/>
+        <lane id=":J_main_sec_6_1" index="1" speed="13.89" length="14.40" shape="151.60,292.80 151.60,307.20"/>
+    </edge>
+    <edge id=":J_third_0" function="internal">
+        <lane id=":J_third_0_0" index="0" speed="13.89" length="11.20" shape="145.20,187.20 145.20,176.00"/>
+        <lane id=":J_third_0_1" index="1" speed="13.89" length="11.20" shape="148.40,187.20 148.40,176.00"/>
+    </edge>
+    <edge id=":J_third_2" function="internal">
+        <lane id=":J_third_2_0" index="0" speed="13.89" length="11.20" shape="154.80,176.00 154.80,187.20"/>
+    </edge>
+    <edge id=":J_third_3" function="internal">
+        <lane id=":J_third_3_0" index="0" speed="8.83" length="5.97" shape="154.80,176.00 153.85,178.45 151.00,180.20"/>
+    </edge>
+    <edge id=":J_third_4" function="internal">
+        <lane id=":J_third_4_0" index="0" speed="13.89" length="11.20" shape="151.60,176.00 151.60,187.20"/>
+    </edge>
+    <edge id=":J_third_5" function="internal">
+        <lane id=":J_third_5_0" index="0" speed="8.83" length="11.52" shape="151.00,180.20 146.25,181.25 139.60,181.60"/>
+    </edge>
+    <edge id=":ped_cross_a_0" function="internal">
+        <lane id=":ped_cross_a_0_0" index="0" speed="8.33" length="0.10" shape="210.00,301.60 210.00,301.60"/>
+    </edge>
+    <edge id=":ped_cross_a_1" function="internal">
+        <lane id=":ped_cross_a_1_0" index="0" speed="8.33" length="0.10" shape="210.00,298.40 210.00,298.40"/>
+    </edge>
+    <edge id=":ped_cross_b_0" function="internal">
+        <lane id=":ped_cross_b_0_0" index="0" speed="13.89" length="0.10" shape="145.20,350.00 145.20,350.00"/>
+        <lane id=":ped_cross_b_0_1" index="1" speed="13.89" length="0.10" shape="148.40,350.00 148.40,350.00"/>
+    </edge>
+    <edge id=":ped_cross_b_2" function="internal">
+        <lane id=":ped_cross_b_2_0" index="0" speed="13.89" length="0.10" shape="154.80,350.00 154.80,350.00"/>
+        <lane id=":ped_cross_b_2_1" index="1" speed="13.89" length="0.10" shape="151.60,350.00 151.60,350.00"/>
+    </edge>
+    <edge id=":ped_cross_c_0" function="internal">
+        <lane id=":ped_cross_c_0_0" index="0" speed="13.89" length="0.10" shape="145.20,230.00 145.20,230.00"/>
+        <lane id=":ped_cross_c_0_1" index="1" speed="13.89" length="0.10" shape="148.40,230.00 148.40,230.00"/>
+    </edge>
+    <edge id=":ped_cross_c_2" function="internal">
+        <lane id=":ped_cross_c_2_0" index="0" speed="13.89" length="0.10" shape="154.80,230.00 154.80,230.00"/>
+        <lane id=":ped_cross_c_2_1" index="1" speed="13.89" length="0.10" shape="151.60,230.00 151.60,230.00"/>
+    </edge>
+
+    <edge id="main_NB_jm_pb" from="J_main_sec" to="ped_cross_b" priority="10">
+        <lane id="main_NB_jm_pb_0" index="0" speed="13.89" length="42.80" shape="154.80,307.20 154.80,350.00"/>
+        <lane id="main_NB_jm_pb_1" index="1" speed="13.89" length="42.80" shape="151.60,307.20 151.60,350.00"/>
+    </edge>
+    <edge id="main_NB_jt_pc" from="J_third" to="ped_cross_c" priority="10">
+        <lane id="main_NB_jt_pc_0" index="0" speed="13.89" length="42.80" shape="154.80,187.20 154.80,230.00"/>
+        <lane id="main_NB_jt_pc_1" index="1" speed="13.89" length="42.80" shape="151.60,187.20 151.60,230.00"/>
+    </edge>
+    <edge id="main_NB_pb_n" from="ped_cross_b" to="north_end" priority="10">
+        <lane id="main_NB_pb_n_0" index="0" speed="13.89" length="150.00" shape="154.80,350.00 154.80,500.00"/>
+        <lane id="main_NB_pb_n_1" index="1" speed="13.89" length="150.00" shape="151.60,350.00 151.60,500.00"/>
+    </edge>
+    <edge id="main_NB_pc_jm" from="ped_cross_c" to="J_main_sec" priority="10">
+        <lane id="main_NB_pc_jm_0" index="0" speed="13.89" length="62.80" shape="154.80,230.00 154.80,292.80"/>
+        <lane id="main_NB_pc_jm_1" index="1" speed="13.89" length="62.80" shape="151.60,230.00 151.60,292.80"/>
+    </edge>
+    <edge id="main_NB_s_jt" from="south_end" to="J_third" priority="10">
+        <lane id="main_NB_s_jt_0" index="0" speed="13.89" length="176.00" shape="154.80,0.00 154.80,176.00"/>
+        <lane id="main_NB_s_jt_1" index="1" speed="13.89" length="176.00" shape="151.60,0.00 151.60,176.00"/>
+    </edge>
+    <edge id="main_SB_jm_pc" from="J_main_sec" to="ped_cross_c" priority="10">
+        <lane id="main_SB_jm_pc_0" index="0" speed="13.89" length="62.80" shape="145.20,292.80 145.20,230.00"/>
+        <lane id="main_SB_jm_pc_1" index="1" speed="13.89" length="62.80" shape="148.40,292.80 148.40,230.00"/>
+    </edge>
+    <edge id="main_SB_jt_s" from="J_third" to="south_end" priority="10">
+        <lane id="main_SB_jt_s_0" index="0" speed="13.89" length="176.00" shape="145.20,176.00 145.20,0.00"/>
+        <lane id="main_SB_jt_s_1" index="1" speed="13.89" length="176.00" shape="148.40,176.00 148.40,0.00"/>
+    </edge>
+    <edge id="main_SB_n_pb" from="north_end" to="ped_cross_b" priority="10">
+        <lane id="main_SB_n_pb_0" index="0" speed="13.89" length="150.00" shape="145.20,500.00 145.20,350.00"/>
+        <lane id="main_SB_n_pb_1" index="1" speed="13.89" length="150.00" shape="148.40,500.00 148.40,350.00"/>
+    </edge>
+    <edge id="main_SB_pb_jm" from="ped_cross_b" to="J_main_sec" priority="10">
+        <lane id="main_SB_pb_jm_0" index="0" speed="13.89" length="42.80" shape="145.20,350.00 145.20,307.20"/>
+        <lane id="main_SB_pb_jm_1" index="1" speed="13.89" length="42.80" shape="148.40,350.00 148.40,307.20"/>
+    </edge>
+    <edge id="main_SB_pc_jt" from="ped_cross_c" to="J_third" priority="10">
+        <lane id="main_SB_pc_jt_0" index="0" speed="13.89" length="42.80" shape="145.20,230.00 145.20,187.20"/>
+        <lane id="main_SB_pc_jt_1" index="1" speed="13.89" length="42.80" shape="148.40,230.00 148.40,187.20"/>
+    </edge>
+    <edge id="sec_in_1" from="secondary_end" to="ped_cross_a" priority="5">
+        <lane id="sec_in_1_0" index="0" speed="8.33" length="140.00" shape="350.00,301.60 210.00,301.60"/>
+    </edge>
+    <edge id="sec_in_2" from="ped_cross_a" to="J_main_sec" priority="5">
+        <lane id="sec_in_2_0" index="0" speed="8.33" length="49.60" shape="210.00,301.60 160.40,301.60"/>
+    </edge>
+    <edge id="sec_out_1" from="J_main_sec" to="ped_cross_a" priority="5">
+        <lane id="sec_out_1_0" index="0" speed="8.33" length="49.60" shape="160.40,298.40 210.00,298.40"/>
+    </edge>
+    <edge id="sec_out_2" from="ped_cross_a" to="secondary_end" priority="5">
+        <lane id="sec_out_2_0" index="0" speed="8.33" length="140.00" shape="210.00,298.40 350.00,298.40"/>
+    </edge>
+    <edge id="third_out" from="J_third" to="third_end" priority="5">
+        <lane id="third_out_0" index="0" speed="8.33" length="139.60" shape="139.60,181.60 0.00,181.60"/>
+    </edge>
+
+    <tlLogic id="J_main_sec" type="static" programID="0" offset="0">
+        <phase duration="42" state="GgGrrGGG"/>
+        <phase duration="3"  state="yyyrrGyy"/>
+        <phase duration="42" state="rrrGGGrr"/>
+        <phase duration="3"  state="rrryyGrr"/>
+    </tlLogic>
+    <tlLogic id="J_third" type="static" programID="0" offset="0">
+        <phase duration="82" state="GGGgG"/>
+        <phase duration="3"  state="yyyyy"/>
+        <phase duration="5"  state="rrrrr"/>
+    </tlLogic>
+
+    <junction id="J_main_sec" type="traffic_light" x="150.00" y="300.00" incLanes="main_SB_pb_jm_0 main_SB_pb_jm_1 sec_in_2_0 main_NB_pc_jm_0 main_NB_pc_jm_1" intLanes=":J_main_sec_0_0 :J_main_sec_8_0 :J_main_sec_2_0 :J_main_sec_3_0 :J_main_sec_4_0 :J_main_sec_5_0 :J_main_sec_6_0 :J_main_sec_6_1" shape="143.60,307.20 156.40,307.20 156.84,304.98 157.40,304.20 158.18,303.64 159.18,303.31 160.40,303.20 160.40,296.80 158.18,296.36 157.40,295.80 156.84,295.02 156.51,294.02 156.40,292.80 143.60,292.80">
+        <request index="0" response="00000000" foes="00010000" cont="0"/>
+        <request index="1" response="11100100" foes="11110100" cont="1"/>
+        <request index="2" response="00000000" foes="00010010" cont="0"/>
+        <request index="3" response="11000000" foes="11000000" cont="0"/>
+        <request index="4" response="11000111" foes="11000111" cont="0"/>
+        <request index="5" response="00000000" foes="00000010" cont="0"/>
+        <request index="6" response="00000000" foes="00011010" cont="0"/>
+        <request index="7" response="00000000" foes="00011010" cont="0"/>
+    </junction>
+    <junction id="J_third" type="traffic_light" x="150.00" y="180.00" incLanes="main_SB_pc_jt_0 main_SB_pc_jt_1 main_NB_s_jt_0 main_NB_s_jt_1" intLanes=":J_third_0_0 :J_third_0_1 :J_third_2_0 :J_third_5_0 :J_third_4_0" shape="143.60,187.20 156.40,187.20 156.40,176.00 143.60,176.00 143.16,178.22 142.60,179.00 141.82,179.56 140.82,179.89 139.60,180.00 139.60,183.20 141.82,183.64 142.60,184.20 143.16,184.98 143.49,185.98">
+        <request index="0" response="00000" foes="01000" cont="0"/>
+        <request index="1" response="00000" foes="01000" cont="0"/>
+        <request index="2" response="00000" foes="00000" cont="0"/>
+        <request index="3" response="10011" foes="10011" cont="1"/>
+        <request index="4" response="00000" foes="01000" cont="0"/>
+    </junction>
+    <junction id="north_end" type="dead_end" x="150.00" y="500.00" incLanes="main_NB_pb_n_0 main_NB_pb_n_1" intLanes="" shape="150.00,500.00 156.40,500.00 150.00,500.00"/>
+    <junction id="ped_cross_a" type="priority" x="210.00" y="300.00" incLanes="sec_in_1_0 sec_out_1_0" intLanes=":ped_cross_a_0_0 :ped_cross_a_1_0" shape="210.00,303.20 210.00,296.80 210.00,303.20">
+        <request index="0" response="00" foes="00" cont="0"/>
+        <request index="1" response="00" foes="00" cont="0"/>
+    </junction>
+    <junction id="ped_cross_b" type="priority" x="150.00" y="350.00" incLanes="main_SB_n_pb_0 main_SB_n_pb_1 main_NB_jm_pb_0 main_NB_jm_pb_1" intLanes=":ped_cross_b_0_0 :ped_cross_b_0_1 :ped_cross_b_2_0 :ped_cross_b_2_1" shape="143.60,350.00 156.40,350.00 143.60,350.00">
+        <request index="0" response="0000" foes="0000" cont="0"/>
+        <request index="1" response="0000" foes="0000" cont="0"/>
+        <request index="2" response="0000" foes="0000" cont="0"/>
+        <request index="3" response="0000" foes="0000" cont="0"/>
+    </junction>
+    <junction id="ped_cross_c" type="priority" x="150.00" y="230.00" incLanes="main_SB_jm_pc_0 main_SB_jm_pc_1 main_NB_jt_pc_0 main_NB_jt_pc_1" intLanes=":ped_cross_c_0_0 :ped_cross_c_0_1 :ped_cross_c_2_0 :ped_cross_c_2_1" shape="143.60,230.00 156.40,230.00 143.60,230.00">
+        <request index="0" response="0000" foes="0000" cont="0"/>
+        <request index="1" response="0000" foes="0000" cont="0"/>
+        <request index="2" response="0000" foes="0000" cont="0"/>
+        <request index="3" response="0000" foes="0000" cont="0"/>
+    </junction>
+    <junction id="secondary_end" type="dead_end" x="350.00" y="300.00" incLanes="sec_out_2_0" intLanes="" shape="350.00,300.00 350.00,296.80 350.00,300.00"/>
+    <junction id="south_end" type="dead_end" x="150.00" y="0.00" incLanes="main_SB_jt_s_0 main_SB_jt_s_1" intLanes="" shape="150.00,0.00 143.60,0.00 150.00,0.00"/>
+    <junction id="third_end" type="dead_end" x="0.00" y="180.00" incLanes="third_out_0" intLanes="" shape="0.00,183.20 0.00,180.00"/>
+
+    <junction id=":J_main_sec_8_0" type="internal" x="148.88" y="300.72" incLanes=":J_main_sec_1_0 main_NB_pc_jm_0 main_NB_pc_jm_1" intLanes=":J_main_sec_2_0 :J_main_sec_4_0 :J_main_sec_5_0 :J_main_sec_6_0 :J_main_sec_6_1"/>
+    <junction id=":J_third_5_0" type="internal" x="151.00" y="180.20" incLanes=":J_third_3_0 main_SB_pc_jt_0 main_SB_pc_jt_1" intLanes=":J_third_0_0 :J_third_0_1 :J_third_4_0"/>
+
+    <connection from="main_NB_jm_pb" to="main_NB_pb_n" fromLane="0" toLane="0" via=":ped_cross_b_2_0" dir="s" state="M"/>
+    <connection from="main_NB_jm_pb" to="main_NB_pb_n" fromLane="1" toLane="1" via=":ped_cross_b_2_1" dir="s" state="M"/>
+    <connection from="main_NB_jt_pc" to="main_NB_pc_jm" fromLane="0" toLane="0" via=":ped_cross_c_2_0" dir="s" state="M"/>
+    <connection from="main_NB_jt_pc" to="main_NB_pc_jm" fromLane="1" toLane="1" via=":ped_cross_c_2_1" dir="s" state="M"/>
+    <connection from="main_NB_pc_jm" to="sec_out_1" fromLane="0" toLane="0" via=":J_main_sec_5_0" tl="J_main_sec" linkIndex="5" dir="r" state="O"/>
+    <connection from="main_NB_pc_jm" to="main_NB_jm_pb" fromLane="0" toLane="0" via=":J_main_sec_6_0" tl="J_main_sec" linkIndex="6" dir="s" state="O"/>
+    <connection from="main_NB_pc_jm" to="main_NB_jm_pb" fromLane="1" toLane="1" via=":J_main_sec_6_1" tl="J_main_sec" linkIndex="7" dir="s" state="O"/>
+    <connection from="main_NB_s_jt" to="main_NB_jt_pc" fromLane="0" toLane="0" via=":J_third_2_0" tl="J_third" linkIndex="2" dir="s" state="O"/>
+    <connection from="main_NB_s_jt" to="third_out" fromLane="0" toLane="0" via=":J_third_3_0" tl="J_third" linkIndex="3" dir="l" state="o"/>
+    <connection from="main_NB_s_jt" to="main_NB_jt_pc" fromLane="1" toLane="1" via=":J_third_4_0" tl="J_third" linkIndex="4" dir="s" state="O"/>
+    <connection from="main_SB_jm_pc" to="main_SB_pc_jt" fromLane="0" toLane="0" via=":ped_cross_c_0_0" dir="s" state="M"/>
+    <connection from="main_SB_jm_pc" to="main_SB_pc_jt" fromLane="1" toLane="1" via=":ped_cross_c_0_1" dir="s" state="M"/>
+    <connection from="main_SB_n_pb" to="main_SB_pb_jm" fromLane="0" toLane="0" via=":ped_cross_b_0_0" dir="s" state="M"/>
+    <connection from="main_SB_n_pb" to="main_SB_pb_jm" fromLane="1" toLane="1" via=":ped_cross_b_0_1" dir="s" state="M"/>
+    <connection from="main_SB_pb_jm" to="main_SB_jm_pc" fromLane="0" toLane="0" via=":J_main_sec_0_0" tl="J_main_sec" linkIndex="0" dir="s" state="O"/>
+    <connection from="main_SB_pb_jm" to="sec_out_1" fromLane="0" toLane="0" via=":J_main_sec_1_0" tl="J_main_sec" linkIndex="1" dir="l" state="o"/>
+    <connection from="main_SB_pb_jm" to="main_SB_jm_pc" fromLane="1" toLane="1" via=":J_main_sec_2_0" tl="J_main_sec" linkIndex="2" dir="s" state="O"/>
+    <connection from="main_SB_pc_jt" to="main_SB_jt_s" fromLane="0" toLane="0" via=":J_third_0_0" tl="J_third" linkIndex="0" dir="s" state="O"/>
+    <connection from="main_SB_pc_jt" to="main_SB_jt_s" fromLane="1" toLane="1" via=":J_third_0_1" tl="J_third" linkIndex="1" dir="s" state="O"/>
+    <connection from="sec_in_1" to="sec_in_2" fromLane="0" toLane="0" via=":ped_cross_a_0_0" dir="s" state="M"/>
+    <connection from="sec_in_2" to="main_NB_jm_pb" fromLane="0" toLane="0" via=":J_main_sec_3_0" tl="J_main_sec" linkIndex="3" dir="r" state="o"/>
+    <connection from="sec_in_2" to="main_SB_jm_pc" fromLane="0" toLane="0" via=":J_main_sec_4_0" tl="J_main_sec" linkIndex="4" dir="l" state="o"/>
+    <connection from="sec_out_1" to="sec_out_2" fromLane="0" toLane="0" via=":ped_cross_a_1_0" dir="s" state="M"/>
+
+    <connection from=":J_main_sec_0" to="main_SB_jm_pc" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":J_main_sec_1" to="sec_out_1" fromLane="0" toLane="0" via=":J_main_sec_8_0" dir="l" state="m"/>
+    <connection from=":J_main_sec_8" to="sec_out_1" fromLane="0" toLane="0" dir="l" state="M"/>
+    <connection from=":J_main_sec_2" to="main_SB_jm_pc" fromLane="0" toLane="1" dir="s" state="M"/>
+    <connection from=":J_main_sec_3" to="main_NB_jm_pb" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":J_main_sec_4" to="main_SB_jm_pc" fromLane="0" toLane="0" dir="l" state="M"/>
+    <connection from=":J_main_sec_5" to="sec_out_1" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":J_main_sec_6" to="main_NB_jm_pb" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":J_main_sec_6" to="main_NB_jm_pb" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":J_third_0" to="main_SB_jt_s" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":J_third_0" to="main_SB_jt_s" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":J_third_2" to="main_NB_jt_pc" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":J_third_3" to="third_out" fromLane="0" toLane="0" via=":J_third_5_0" dir="l" state="m"/>
+    <connection from=":J_third_5" to="third_out" fromLane="0" toLane="0" dir="l" state="M"/>
+    <connection from=":J_third_4" to="main_NB_jt_pc" fromLane="0" toLane="1" dir="s" state="M"/>
+    <connection from=":ped_cross_a_0" to="sec_in_2" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":ped_cross_a_1" to="sec_out_2" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":ped_cross_b_0" to="main_SB_pb_jm" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":ped_cross_b_0" to="main_SB_pb_jm" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":ped_cross_b_2" to="main_NB_pb_n" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":ped_cross_b_2" to="main_NB_pb_n" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":ped_cross_c_0" to="main_SB_pc_jt" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":ped_cross_c_0" to="main_SB_pc_jt" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":ped_cross_c_2" to="main_NB_pc_jm" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":ped_cross_c_2" to="main_NB_pc_jm" fromLane="1" toLane="1" dir="s" state="M"/>
+
+</net>

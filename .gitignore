@@ -1,0 +1,27 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large checkpoints (keep directory structure via .gitkeep)
+models/*.zip
+models/*.pkl
+models/best/
+logs/*
+!logs/.gitkeep
+!models/.gitkeep
+
+# Output archives and detector dumps
+*.zip
+detectors.out.xml
+queues.out.xml
+sumo_files/detectors.out.xml
+sumo_files/queues.out.xml
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+.virtual_documents/
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Additional definitions: Induction loop detectors on every lane.
+    These provide the RL agent with per-lane queue/occupancy observations.
+    Detectors placed 10m before each junction approach.
+-->
+<additional>
+    <!-- ===== Detectors approaching J_main_sec ===== -->
+
+    <!-- Northbound approach lanes (main_NB_pc_jm, 2 lanes) -->
+    <inductionLoop id="det_NB_jm_0" lane="main_NB_pc_jm_0" pos="-10" freq="30" file="detectors.out.xml"/>
+    <inductionLoop id="det_NB_jm_1" lane="main_NB_pc_jm_1" pos="-10" freq="30" file="detectors.out.xml"/>
+
+    <!-- Southbound approach lanes (main_SB_pb_jm, 2 lanes) -->
+    <inductionLoop id="det_SB_jm_0" lane="main_SB_pb_jm_0" pos="-10" freq="30" file="detectors.out.xml"/>
+    <inductionLoop id="det_SB_jm_1" lane="main_SB_pb_jm_1" pos="-10" freq="30" file="detectors.out.xml"/>
+
+    <!-- Secondary inbound approach (sec_in_2, 1 lane) -->
+    <inductionLoop id="det_sec_in"  lane="sec_in_2_0"       pos="-10" freq="30" file="detectors.out.xml"/>
+
+    <!-- ===== Detectors approaching J_third ===== -->
+
+    <!-- Northbound approach lanes (main_NB_s_jt, 2 lanes) -->
+    <inductionLoop id="det_NB_jt_0" lane="main_NB_s_jt_0"  pos="-10" freq="30" file="detectors.out.xml"/>
+    <inductionLoop id="det_NB_jt_1" lane="main_NB_s_jt_1"  pos="-10" freq="30" file="detectors.out.xml"/>
+
+    <!-- Southbound approach lanes (main_SB_pc_jt, 2 lanes) -->
+    <inductionLoop id="det_SB_jt_0" lane="main_SB_pc_jt_0" pos="-10" freq="30" file="detectors.out.xml"/>
+    <inductionLoop id="det_SB_jt_1" lane="main_SB_pc_jt_1" pos="-10" freq="30" file="detectors.out.xml"/>
+
+    <!-- ===== Lane Area Detectors for queue length (more accurate) ===== -->
+    <!-- These measure queue length on each approach arm -->
+    <laneAreaDetector id="queue_NB_jm_0" lane="main_NB_pc_jm_0" pos="0" endPos="-1" freq="30" file="queues.out.xml"/>
+    <laneAreaDetector id="queue_NB_jm_1" lane="main_NB_pc_jm_1" pos="0" endPos="-1" freq="30" file="queues.out.xml"/>
+    <laneAreaDetector id="queue_SB_jm_0" lane="main_SB_pb_jm_0" pos="0" endPos="-1" freq="30" file="queues.out.xml"/>
+    <laneAreaDetector id="queue_SB_jm_1" lane="main_SB_pb_jm_1" pos="0" endPos="-1" freq="30" file="queues.out.xml"/>
+    <laneAreaDetector id="queue_sec_in"  lane="sec_in_2_0"       pos="0" endPos="-1" freq="30" file="queues.out.xml"/>
+    <laneAreaDetector id="queue_NB_jt_0" lane="main_NB_s_jt_0"  pos="0" endPos="-1" freq="30" file="queues.out.xml"/>
+    <laneAreaDetector id="queue_NB_jt_1" lane="main_NB_s_jt_1"  pos="0" endPos="-1" freq="30" file="queues.out.xml"/>
+    <laneAreaDetector id="queue_SB_jt_0" lane="main_SB_pc_jt_0" pos="0" endPos="-1" freq="30" file="queues.out.xml"/>
+    <laneAreaDetector id="queue_SB_jt_1" lane="main_SB_pc_jt_1" pos="0" endPos="-1" freq="30" file="queues.out.xml"/>
+</additional>
