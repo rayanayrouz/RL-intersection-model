@@ -19,24 +19,24 @@
     <route id="rPed_A_fwd" edges="sec_out_1"/>
     <route id="rPed_A_bwd" edges="sec_in_2"/>
 
-    <!-- ===== VEHICLE FLOWS (Scenario: uniform) ===== -->
+    <!-- ===== VEHICLE FLOWS (Scenario: quiet_night) ===== -->
     <!-- Main Northbound -->
-    <flow id="fNB_straight" type="car"  route="rNB_straight" begin="0" end="3600" vehsPerHour="479" departSpeed="max" departLane="best"/>
-    <flow id="fNB_moto"     type="moto" route="rNB_straight" begin="0" end="3600" vehsPerHour="136" departSpeed="max" departLane="best"/>
-    <flow id="fNB_truck"    type="truck" route="rNB_straight" begin="0" end="3600" vehsPerHour="40" departSpeed="max" departLane="best"/>
-    <flow id="fNB_to_third" type="car"  route="rNB_to_third" begin="0" end="3600" vehsPerHour="52"  departSpeed="max" departLane="best"/>
-    <flow id="fNB_to_sec"   type="car"  route="rNB_to_sec"   begin="0" end="3600" vehsPerHour="76"  departSpeed="max" departLane="best"/>
+    <flow id="fNB_straight" type="car"  route="rNB_straight" begin="0" end="3600" vehsPerHour="110" departSpeed="max" departLane="best"/>
+    <flow id="fNB_moto"     type="moto" route="rNB_straight" begin="0" end="3600" vehsPerHour="24" departSpeed="max" departLane="best"/>
+    <flow id="fNB_truck"    type="truck" route="rNB_straight" begin="0" end="3600" vehsPerHour="9" departSpeed="max" departLane="best"/>
+    <flow id="fNB_to_third" type="car"  route="rNB_to_third" begin="0" end="3600" vehsPerHour="11"  departSpeed="max" departLane="best"/>
+    <flow id="fNB_to_sec"   type="car"  route="rNB_to_sec"   begin="0" end="3600" vehsPerHour="16"  departSpeed="max" departLane="best"/>
 
     <!-- Main Southbound -->
-    <flow id="fSB_straight" type="car"  route="rSB_straight" begin="0" end="3600" vehsPerHour="465" departSpeed="max" departLane="best"/>
-    <flow id="fSB_moto"     type="moto" route="rSB_straight" begin="0" end="3600" vehsPerHour="100" departSpeed="max" departLane="best"/>
-    <flow id="fSB_truck"    type="truck" route="rSB_straight" begin="0" end="3600" vehsPerHour="30" departSpeed="max" departLane="best"/>
-    <flow id="fSB_to_sec"   type="car"  route="rSB_to_sec"   begin="0" end="3600" vehsPerHour="77"  departSpeed="max" departLane="best"/>
+    <flow id="fSB_straight" type="car"  route="rSB_straight" begin="0" end="3600" vehsPerHour="81" departSpeed="max" departLane="best"/>
+    <flow id="fSB_moto"     type="moto" route="rSB_straight" begin="0" end="3600" vehsPerHour="21" departSpeed="max" departLane="best"/>
+    <flow id="fSB_truck"    type="truck" route="rSB_straight" begin="0" end="3600" vehsPerHour="5" departSpeed="max" departLane="best"/>
+    <flow id="fSB_to_sec"   type="car"  route="rSB_to_sec"   begin="0" end="3600" vehsPerHour="13"  departSpeed="max" departLane="best"/>
 
     <!-- Secondary road inbound -->
-    <flow id="fSec_NB"      type="car"  route="rSec_to_NB"   begin="0" end="3600" vehsPerHour="95" departSpeed="max" departLane="best"/>
-    <flow id="fSec_SB"      type="car"  route="rSec_to_SB"   begin="0" end="3600" vehsPerHour="111" departSpeed="max" departLane="best"/>
-    <flow id="fSec_moto"    type="moto" route="rSec_to_NB"   begin="0" end="3600" vehsPerHour="41"  departSpeed="max" departLane="best"/>
+    <flow id="fSec_NB"      type="car"  route="rSec_to_NB"   begin="0" end="3600" vehsPerHour="22" departSpeed="max" departLane="best"/>
+    <flow id="fSec_SB"      type="car"  route="rSec_to_SB"   begin="0" end="3600" vehsPerHour="21" departSpeed="max" departLane="best"/>
+    <flow id="fSec_moto"    type="moto" route="rSec_to_NB"   begin="0" end="3600" vehsPerHour="6"  departSpeed="max" departLane="best"/>
 
     
 </routes>

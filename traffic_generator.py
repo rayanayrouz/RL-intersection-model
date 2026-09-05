@@ -57,10 +57,10 @@ def generate_traffic(sumo_dir: str, scenario: str = "random"):
 
     xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <routes>
-    <!-- Vehicle types -->
-    <vType id="car"    accel="2.6" decel="4.5" sigma="0.5" length="4.5"  minGap="2.5" maxSpeed="50" guiShape="passenger"/>
-    <vType id="moto"   accel="3.0" decel="5.0" sigma="0.6" length="2.0"  minGap="1.5" maxSpeed="55" guiShape="moped"/>
-    <vType id="truck"  accel="1.5" decel="3.5" sigma="0.4" length="10.0" minGap="3.0" maxSpeed="40" guiShape="truck"/>
+    <!-- Vehicle types with randomized speed profiles -->
+    <vType id="car"    accel="2.6" decel="4.5" sigma="0.7" length="4.5"  minGap="2.5" maxSpeed="50" speedFactor="normc(1.0, 0.2, 0.5, 1.5)" guiShape="passenger"/>
+    <vType id="moto"   accel="3.0" decel="5.0" sigma="0.8" length="2.0"  minGap="1.5" maxSpeed="55" speedFactor="normc(1.1, 0.3, 0.6, 1.7)" guiShape="moped"/>
+    <vType id="truck"  accel="1.5" decel="3.5" sigma="0.4" length="10.0" minGap="3.0" maxSpeed="40" speedFactor="normc(0.85, 0.1, 0.6, 1.0)" guiShape="truck"/>
     <vType id="pedestrian" vClass="pedestrian" length="0.25" minGap="0.25" maxSpeed="1.5" guiShape="pedestrian"/>
 
     <!-- ===== VEHICLE ROUTES ===== -->

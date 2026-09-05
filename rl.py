@@ -51,7 +51,7 @@ import traffic_generator
 # ---------------------------------------------------------------------------
 
 # Path to the SUMO binary (sumo for headless, sumo-gui for visual)
-SUMO_BINARY = "sumo"  # Change to "sumo-gui" to watch the simulation
+SUMO_BINARY = "sumo-gui"  # Change to "sumo-gui" to watch the simulation
 
 # ---------------------------------------------------------------------------
 # PATH CONFIGURATION
