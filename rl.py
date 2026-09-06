@@ -207,9 +207,16 @@ class BougaraIntersectionEnv(gym.Env):
             self.sumo_binary,
             "-c", SUMO_CFG,
             "--no-step-log", "true",
+            "--no-warnings", "true",
             "--log", os.devnull,
+            "--error-log", os.devnull,
             "--random",               # randomise departure times each episode
         ]
+        if self.use_gui:
+            sumo_cmd.extend(["--start", "true", "--delay", "60"])
+            gui_cfg = os.path.join(SUMO_DIR, "gui-settings.xml")
+            if os.path.exists(gui_cfg):
+                sumo_cmd.extend(["--gui-settings-file", gui_cfg])
         traci.start(sumo_cmd)
         self._sumo_running = True
 
