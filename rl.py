@@ -172,6 +172,7 @@ class BougaraIntersectionEnv(gym.Env):
         self.sumo_binary = "sumo-gui" if use_gui else sumo_binary
         self.use_gui = use_gui
         self._sumo_running = False
+        self._lane_max_speeds = {}
 
         # Observation space (all values normalised to [0, 1])
         self.observation_space = spaces.Box(
@@ -207,11 +208,21 @@ class BougaraIntersectionEnv(gym.Env):
             self.sumo_binary,
             "-c", SUMO_CFG,
             "--no-step-log", "true",
+            "--no-warnings", "true",
             "--log", os.devnull,
+            "--error-log", os.devnull,
             "--random",               # randomise departure times each episode
         ]
         traci.start(sumo_cmd)
         self._sumo_running = True
+
+        # Cache lane max speeds once TraCI is alive to eliminate redundant socket roundtrips
+        if not self._lane_max_speeds:
+            for lane in ALL_LANES:
+                try:
+                    self._lane_max_speeds[lane] = float(traci.lane.getMaxSpeed(lane))
+                except Exception:
+                    self._lane_max_speeds[lane] = 13.89
 
         # Set initial phases programmatically
         traci.trafficlight.setPhase("J_main_sec", MAIN_GREEN_PHASE)
@@ -219,7 +230,7 @@ class BougaraIntersectionEnv(gym.Env):
 
     # ------------------------------------------------------------------
     def _get_lane_info(self, lane_id: str):
-        """Return (queue_len, mean_wait, speed_norm) for a lane."""
+        """Return (queue_len, mean_wait, speed_norm, veh_count) for a lane."""
         try:
             queue_len = traci.lane.getLastStepHaltingNumber(lane_id)
             wait_time = traci.lane.getWaitingTime(lane_id)
@@ -227,7 +238,7 @@ class BougaraIntersectionEnv(gym.Env):
             mean_wait = wait_time / max(veh_count, 1)
 
             # Normalized speed: ratio of current mean speed to lane speed limit [0.0 - 1.0]
-            max_speed = traci.lane.getMaxSpeed(lane_id)
+            max_speed = self._lane_max_speeds.get(lane_id, 13.89)
             if veh_count > 0:
                 raw_speed = traci.lane.getLastStepMeanSpeed(lane_id)
                 speed_norm = float(np.clip(raw_speed / max(max_speed, 0.1), 0.0, 1.0))
@@ -237,7 +248,8 @@ class BougaraIntersectionEnv(gym.Env):
             queue_len = 0
             mean_wait = 0.0
             speed_norm = 1.0
-        return queue_len, mean_wait, speed_norm
+            veh_count = 0
+        return queue_len, mean_wait, speed_norm, veh_count
 
     # ------------------------------------------------------------------
     def _get_observation(self) -> np.ndarray:
@@ -247,7 +259,7 @@ class BougaraIntersectionEnv(gym.Env):
         speed_norms = []
 
         for lane in ALL_LANES:
-            q, w, s = self._get_lane_info(lane)
+            q, w, s, _ = self._get_lane_info(lane)
             queue_norms.append(min(q,  30)  / 30.0)    # normalise queue 0-30
             wait_norms.append(min(w, 300.0) / 300.0)   # normalise wait 0-300s
             speed_norms.append(s)                      # normalise speed 0.0-1.0
@@ -275,15 +287,11 @@ class BougaraIntersectionEnv(gym.Env):
         speed_deficit = 0.0
 
         for lane in ALL_LANES:
-            q, w, s = self._get_lane_info(lane)
+            q, w, s, veh_count = self._get_lane_info(lane)
             total_halting += q
             total_wait += w
             max_lane_wait = max(max_lane_wait, w)
 
-            try:
-                veh_count = traci.lane.getLastStepVehicleNumber(lane)
-            except Exception:
-                veh_count = 0
             if veh_count > 0:
                 # If cars are on this lane, penalize how far their speed is below speed limit
                 speed_deficit += (1.0 - s) * veh_count
@@ -470,7 +478,7 @@ class SyncEvalCallback(EvalCallback):
 # ---------------------------------------------------------------------------
 
 def train(
-    total_timesteps: int = 500_000,
+    total_timesteps: int = 60_000,
     n_eval_episodes: int = 5,
     save_dir: str = "models",
     log_dir: str = "logs",
@@ -478,8 +486,12 @@ def train(
     """
     Train a PPO agent on the Bougara intersection.
 
+    With macro-actions (5s extension or 13s switch+min green), 1 RL step equals
+    ~8.8 seconds of traffic. 60,000 steps = ~528,000 seconds of simulation (~146 full episodes),
+    taking ~1 to 1.5 hours to train on standard cloud hardware.
+
     Args:
-        total_timesteps : Maximum environment steps to train for (acts as upper bound).
+        total_timesteps : Maximum environment macro-steps to train for (acts as upper bound).
         n_eval_episodes : Episodes used for periodic evaluation.
         save_dir        : Directory to save model checkpoints.
         log_dir         : Directory for TensorBoard logs.
@@ -490,7 +502,7 @@ def train(
     print("=" * 60)
     print("  Bougara El Biar Intersection – RL Training")
     print("  Algorithm : PPO with LSTM (RecurrentPPO)")
-    print(f"  Max Steps : {total_timesteps:,}")
+    print(f"  Max Steps : {total_timesteps:,} macro-steps (~{total_timesteps * 8.8 / 3600:.0f} traffic hours)")
     print("=" * 60)
 
     # --- Training environment ---
@@ -520,14 +532,14 @@ def train(
 
     # --- Callbacks ---
     checkpoint_cb = CheckpointCallback(
-        save_freq   = 50_000,
+        save_freq   = 10_000,
         save_path   = save_dir,
         name_prefix = "bougara_lstm",
         verbose     = 1,
     )
 
     norm_save_cb = SaveVecNormalizeCallback(
-        save_freq   = 25_000,
+        save_freq   = 5_000,
         save_path   = save_dir,
         verbose     = 1,
     )
@@ -537,11 +549,11 @@ def train(
     eval_vec_env = DummyVecEnv([lambda: eval_env])
     eval_vec_env = VecNormalize(eval_vec_env, norm_obs=True, norm_reward=False, clip_obs=10., training=False)
 
-    # Early Stopping Callback: stops training if the model stops improving across 10 consecutive evaluations
-    # (10 * 25,000 = 250,000 steps without improvement). Provides ample exploration breathing room!
+    # Early Stopping Callback: stops training if the model stops improving across 8 consecutive evaluations
+    # (8 * 5,000 = 40,000 steps without improvement). Provides ample exploration breathing room!
     stop_train_cb = StopTrainingOnNoModelImprovement(
-        max_no_improvement_evals = 10,
-        min_evals                = 5,
+        max_no_improvement_evals = 8,
+        min_evals                = 4,
         verbose                  = 1,
     )
 
@@ -549,7 +561,7 @@ def train(
         eval_vec_env,
         best_model_save_path = os.path.join(save_dir, "best"),
         log_path             = log_dir,
-        eval_freq            = 25_000,
+        eval_freq            = 5_000,
         n_eval_episodes      = n_eval_episodes,
         callback_after_eval  = stop_train_cb,
         deterministic        = True,
@@ -565,7 +577,7 @@ def train(
         total_timesteps  = total_timesteps,
         callback         = [checkpoint_cb, norm_save_cb, eval_cb],
         tb_log_name      = "PPO_bougara",
-        progress_bar     = True,
+        progress_bar     = False,
     )
 
     elapsed = time.time() - start_time
@@ -715,4 +727,4 @@ def _plot_reward_curve(log_dir: str):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    train(total_timesteps=500_000)
+    train(total_timesteps=60_000)
