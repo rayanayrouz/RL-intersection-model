@@ -35,7 +35,6 @@ from gymnasium import spaces
 import traci
 # pyrefly: ignore [missing-import]
 from stable_baselines3 import PPO
-from sb3_contrib import RecurrentPPO
 # pyrefly: ignore [missing-import]
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback
@@ -51,7 +50,7 @@ import traffic_generator
 # ---------------------------------------------------------------------------
 
 # Path to the SUMO binary (sumo for headless, sumo-gui for visual)
-SUMO_BINARY = "sumo-gui"  # Change to "sumo-gui" to watch the simulation
+SUMO_BINARY = "sumo"  # Change to "sumo-gui" to watch the simulation
 
 # ---------------------------------------------------------------------------
 # PATH CONFIGURATION
@@ -95,6 +94,7 @@ SUMO_CFG = os.path.join(SUMO_DIR, "bougara.sumocfg")
 
 # Simulation parameters
 SIM_STEP_LENGTH = 1        # seconds per simulation step
+ACTION_STEP = 5            # seconds per RL action step when no phase change occurs
 EPISODE_DURATION = 3600    # seconds per episode (1 hour of traffic)
 YELLOW_DURATION  = 3       # seconds for yellow phase transition
 
@@ -171,11 +171,10 @@ class BougaraIntersectionEnv(gym.Env):
         self._step = 0
         self._current_phase_jm = MAIN_GREEN_PHASE
         self._phase_elapsed = 0          # steps in current phase
-        self._in_yellow = False
-        self._pending_phase = None       # phase to switch to after yellow
-        self._yellow_elapsed = 0
         self._episode_reward = 0.0
         self._episode_rewards = []       # track per-episode total reward
+        self._cars_processed = 0
+        self._queue_lengths = []
 
     # ------------------------------------------------------------------
     def _start_sumo(self):
@@ -210,107 +209,63 @@ class BougaraIntersectionEnv(gym.Env):
 
     # ------------------------------------------------------------------
     def _get_lane_info(self, lane_id: str):
-        """Return (queue_len, mean_wait) for a lane."""
+        """Return (occupancy_pct, mean_wait) for a lane."""
         try:
-            queue_len = traci.lane.getLastStepHaltingNumber(lane_id)
+            occupancy = traci.lane.getLastStepOccupancy(lane_id) # 0.0 to 1.0
             wait_time = traci.lane.getWaitingTime(lane_id)
-            # Mean waiting time: distribute over waiting vehicles
             veh_count = traci.lane.getLastStepVehicleNumber(lane_id)
             mean_wait = wait_time / max(veh_count, 1)
         except traci.exceptions.TraCIException:
-            queue_len = 0
+            occupancy = 0.0
             mean_wait = 0.0
-        return queue_len, mean_wait
+        return occupancy, mean_wait
 
     # ------------------------------------------------------------------
     def _get_observation(self) -> np.ndarray:
         """Build the normalised observation vector."""
-        queue_norms = []
+        occupancy_norms = []
         wait_norms  = []
 
         for lane in ALL_LANES:
-            q, w = self._get_lane_info(lane)
-            queue_norms.append(min(q,  30)  / 30.0)    # normalise queue 0-30
+            occ, w = self._get_lane_info(lane)
+            occupancy_norms.append(occ)                # already 0-1
             wait_norms.append(min(w, 300.0) / 300.0)   # normalise wait 0-300s
 
         # Current phase and elapsed phase time
         phase_norm   = self._current_phase_jm / max(SEC_GREEN_PHASE, 1)
         elapsed_norm = min(self._phase_elapsed, 120) / 120.0
 
-        obs = np.array(queue_norms + wait_norms + [phase_norm, elapsed_norm],
+        obs = np.array(occupancy_norms + wait_norms + [phase_norm, elapsed_norm],
                        dtype=np.float32)
         return obs
 
     # ------------------------------------------------------------------
     def _compute_reward(self) -> float:
         """
-        Reward = negative sum of halting vehicles across all approach lanes.
-        A smaller number of halting vehicles is better → higher (less negative) reward.
-        We also add a small fairness bonus if no lane is completely starved.
+        Reward based on total waiting time (delay).
+        Minimizing total wait time across all lanes.
         """
-        total_halting = 0
-        max_lane_wait = 0.0
-
+        total_wait = 0.0
         for lane in ALL_LANES:
-            q, w = self._get_lane_info(lane)
-            total_halting += q
-            max_lane_wait = max(max_lane_wait, w)
+            try:
+                total_wait += traci.lane.getWaitingTime(lane)
+            except:
+                pass
 
-        # Exponential penalty for starvation (e.g. w=10 -> 1, w=60 -> 36, w=120 -> 144)
-        wait_penalty = (max_lane_wait / 10.0) ** 2
-
-        reward = -float(total_halting) - wait_penalty
-
-        return reward
-
-    # ------------------------------------------------------------------
-    def _apply_action(self, action: int):
-        """
-        Apply RL action to J_main_sec.
-        Handles yellow phase transition before switching green phase.
-        J_third is coordinated: mirrors the main junction phase.
-        """
-        target_phase = MAIN_GREEN_PHASE if action == 0 else SEC_GREEN_PHASE
-        is_valid = True
-
-        if self._in_yellow:
-            self._yellow_elapsed += 1
-            if self._yellow_elapsed >= YELLOW_DURATION:
-                traci.trafficlight.setPhase("J_main_sec", self._pending_phase)
-                self._current_phase_jm = self._pending_phase
-                self._in_yellow = False
-                self._yellow_elapsed = 0
-                self._phase_elapsed = 0
-                self._set_jthird_phase(self._pending_phase)
-            else:
-                if target_phase != self._pending_phase:
-                    is_valid = False
-        else:
-            self._phase_elapsed += 1
-            if target_phase != self._current_phase_jm:
-                if self._phase_elapsed >= MIN_GREEN_TIME:
-                    yellow_phase = self._current_phase_jm + 1
-                    traci.trafficlight.setPhase("J_main_sec", yellow_phase)
-                    self._in_yellow = True
-                    self._pending_phase = target_phase
-                    self._yellow_elapsed = 0
-                else:
-                    is_valid = False
-
-        return is_valid
+        # Negative reward for wait time
+        return -total_wait / 100.0
 
     # ------------------------------------------------------------------
     def _set_jthird_phase(self, jm_phase: int):
         """
         Coordinate J_third with J_main_sec.
-        When main road (NB+SB) is green → J_third full green (all traffic through + NB exit)
-        When secondary is green → J_third red (brief all-red, phase 2 in auto-generated logic)
         """
         if jm_phase == MAIN_GREEN_PHASE:
-            traci.trafficlight.setPhase("J_third", THIRD_NB_PHASE)   # full green
+            traci.trafficlight.setPhase("J_third", THIRD_NB_PHASE)
+        elif jm_phase == MAIN_GREEN_PHASE + 1:
+            traci.trafficlight.setPhase("J_third", 1)  # Yellow
         else:
-            # Use the all-red phase at J_third (index 2 from netconvert)
-            traci.trafficlight.setPhase("J_third", 2)
+            traci.trafficlight.setPhase("J_third", 2)  # All red
 
     # ------------------------------------------------------------------
     def reset(self, seed=None, options=None):
@@ -322,10 +277,9 @@ class BougaraIntersectionEnv(gym.Env):
         self._step           = 0
         self._current_phase_jm = MAIN_GREEN_PHASE
         self._phase_elapsed  = 0
-        self._in_yellow      = False
-        self._pending_phase  = None
-        self._yellow_elapsed = 0
         self._episode_reward = 0.0
+        self._cars_processed = 0
+        self._queue_lengths = []
 
         obs = self._get_observation()
         info = {}
@@ -334,22 +288,57 @@ class BougaraIntersectionEnv(gym.Env):
     # ------------------------------------------------------------------
     def step(self, action: int):
         """Execute one simulation step with the given action."""
-        # Apply action (handles yellow/green transitions)
-        is_valid = self._apply_action(action)
-
-        # Advance simulation by one second
-        traci.simulationStep()
-        self._step += 1
+        target_phase = MAIN_GREEN_PHASE if action == 0 else SEC_GREEN_PHASE
+        step_reward = 0.0
+        
+        if target_phase != self._current_phase_jm:
+            # 1. Yellow transition
+            yellow_phase = self._current_phase_jm + 1
+            traci.trafficlight.setPhase("J_main_sec", yellow_phase)
+            self._set_jthird_phase(yellow_phase)
+            
+            for _ in range(YELLOW_DURATION):
+                traci.simulationStep()
+                self._step += SIM_STEP_LENGTH
+                step_reward += self._compute_reward()
+                
+                self._cars_processed += traci.simulation.getArrivedNumber()
+                halted = sum([traci.lane.getLastStepHaltingNumber(lane) for lane in ALL_LANES])
+                self._queue_lengths.append(halted)
+                
+            # 2. Switch to green
+            traci.trafficlight.setPhase("J_main_sec", target_phase)
+            self._current_phase_jm = target_phase
+            self._set_jthird_phase(target_phase)
+            self._phase_elapsed = 0
+            
+            # 3. Simulate minimum green time
+            for _ in range(MIN_GREEN_TIME):
+                traci.simulationStep()
+                self._step += SIM_STEP_LENGTH
+                self._phase_elapsed += SIM_STEP_LENGTH
+                step_reward += self._compute_reward()
+                
+                self._cars_processed += traci.simulation.getArrivedNumber()
+                halted = sum([traci.lane.getLastStepHaltingNumber(lane) for lane in ALL_LANES])
+                self._queue_lengths.append(halted)
+                
+        else:
+            # Keep current phase
+            for _ in range(ACTION_STEP):
+                traci.simulationStep()
+                self._step += SIM_STEP_LENGTH
+                self._phase_elapsed += SIM_STEP_LENGTH
+                step_reward += self._compute_reward()
+                
+                self._cars_processed += traci.simulation.getArrivedNumber()
+                halted = sum([traci.lane.getLastStepHaltingNumber(lane) for lane in ALL_LANES])
+                self._queue_lengths.append(halted)
 
         # Get new state
         obs    = self._get_observation()
-        reward = self._compute_reward()
         
-        # Penalize invalid action choice (agent trying to switch too fast)
-        if not is_valid:
-            reward -= 10.0
-
-        self._episode_reward += reward
+        self._episode_reward += step_reward
 
         # Episode ends when simulation time is up
         terminated = self._step >= EPISODE_DURATION
@@ -362,9 +351,11 @@ class BougaraIntersectionEnv(gym.Env):
             "step": self._step,
             "episode_reward": self._episode_reward,
             "current_phase": self._current_phase_jm,
+            "cars_processed": self._cars_processed,
+            "avg_queue_length": np.mean(self._queue_lengths) if self._queue_lengths else 0
         }
 
-        return obs, reward, terminated, truncated, info
+        return obs, step_reward, terminated, truncated, info
 
     # ------------------------------------------------------------------
     def render(self):
@@ -420,12 +411,12 @@ def train(
 
 
     # --- PPO model ---
-    model = RecurrentPPO(
-        policy           = "MlpLstmPolicy",
+    model = PPO(
+        policy           = "MlpPolicy",
         env              = train_env,
         learning_rate    = 3e-4,
-        n_steps          = 2048,
-        batch_size       = 64,
+        n_steps          = 8192,
+        batch_size       = 128,
         n_epochs         = 10,
         gamma            = 0.99,
         gae_lambda       = 0.95,
@@ -442,7 +433,7 @@ def train(
     checkpoint_cb = CheckpointCallback(
         save_freq   = 50_000,
         save_path   = save_dir,
-        name_prefix = "bougara_lstm",
+        name_prefix = "bougara_mlp",
         verbose     = 1,
     )
 
@@ -478,7 +469,7 @@ def train(
     print(f"\n[INFO] Training complete in {elapsed/60:.1f} minutes.")
 
     # --- Save final model ---
-    final_path = os.path.join(save_dir, "bougara_lstm_final")
+    final_path = os.path.join(save_dir, "bougara_mlp_final")
     model.save(final_path)
     train_env.save(os.path.join(save_dir, "vec_normalize.pkl"))
     print(f"[INFO] Final model saved to: {final_path}.zip")
@@ -495,10 +486,10 @@ def train(
 
 def evaluate(model_path: str, n_episodes: int = 5, use_gui: bool = False):
     """
-    Evaluate a trained RecurrentPPO model.
+    Evaluate a trained PPO model.
     """
     print(f"\n[INFO] Loading model from: {model_path}")
-    model = RecurrentPPO.load(model_path)
+    model = PPO.load(model_path)
 
     env = BougaraIntersectionEnv(use_gui=use_gui)
     vec_env = DummyVecEnv([lambda: env])
@@ -514,15 +505,12 @@ def evaluate(model_path: str, n_episodes: int = 5, use_gui: bool = False):
 
     for ep in range(n_episodes):
         obs = vec_env.reset()
-        lstm_states = None
-        episode_starts = np.ones((1,), dtype=bool)
         done = False
         total_reward = 0.0
 
         while not done:
-            action, lstm_states = model.predict(obs, state=lstm_states, episode_start=episode_starts, deterministic=True)
+            action, _ = model.predict(obs, deterministic=True)
             obs, reward, done_vec, info = vec_env.step(action)
-            episode_starts = done_vec
             done = done_vec[0]
             total_reward += reward[0]
 

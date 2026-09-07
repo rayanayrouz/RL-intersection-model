@@ -95,6 +95,14 @@ def generate_traffic(sumo_dir: str, scenario: str = "random"):
     <flow id="fSec_SB"      type="car"  route="rSec_to_SB"   begin="0" end="3600" vehsPerHour="{apply_noise(fSec_SB, sec_mult)}" departSpeed="max" departLane="best"/>
     <flow id="fSec_moto"    type="moto" route="rSec_to_NB"   begin="0" end="3600" vehsPerHour="{apply_noise(fSec_moto, sec_mult)}"  departSpeed="max" departLane="best"/>
 
+    <!-- ===== PEDESTRIAN FLOWS ===== -->
+    <personFlow id="ped_fwd" begin="0" end="3600" personsPerHour="{apply_noise(100, sec_mult)}">
+        <walk route="rPed_A_fwd"/>
+    </personFlow>
+    <personFlow id="ped_bwd" begin="0" end="3600" personsPerHour="{apply_noise(100, sec_mult)}">
+        <walk route="rPed_A_bwd"/>
+    </personFlow>
+
     {f'''<!-- ===== ACCIDENT VEHICLE ===== -->
     <!-- Simulates a vehicle breaking down in the right lane (lane 0) of the Northbound approach -->
     <vehicle id="accident_veh" type="car" route="rNB_straight" depart="300" departLane="0">
